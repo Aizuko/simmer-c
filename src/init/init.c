@@ -55,7 +55,7 @@ bool init_state(struct state *State, int argc, char **argv)
     start->label = '<';
     State->cursor_start = start;
 
-    struct mark *end = new_mark(300);
+    struct mark *end = new_mark(3104);
     end->pos = nearest_pos_m(end->time, State->columns - 2, State->end_time);
     end->label = '>';
     State->cursor_end = end;

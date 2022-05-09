@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "init/init.h"
+#include "interface/interface.h"
 
 const char *PROGRAM_NAME = "SimmerC";
 const char *PROGRAM_VERSION = "0.1.0";
@@ -33,7 +34,6 @@ void raw_terminal(struct termios *original) {
 int main(int argc, char **argv)
 {
     struct termios original;
-    raw_terminal(&original);
 
     struct state *State = malloc(sizeof(struct state));
 
@@ -41,12 +41,13 @@ int main(int argc, char **argv)
         print_help();
         exit(1);
     } else {
-        struct mark *mark;
-        for (uint64_t i = 0; i < State->markers->len; i++) {
-            mark = State->markers->buffer[i];
-            printf("%c @ %lu in %lu\r\n", mark->label, mark->time, mark->pos);
-        }
+        raw_terminal(&original);
+        draw_interface(State);
+        //struct mark *mark;
+        //for (uint64_t i = 0; i < State->markers->len; i++) {
+        //    mark = State->markers->buffer[i];
+        //    printf("%c @ %lu in %lu\r\n", mark->label, mark->time, mark->pos);
+        //}
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &original);
     }
-
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &original);
 }

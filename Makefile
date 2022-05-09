@@ -1,7 +1,7 @@
 GCC = gcc -Wall -Wextra -Werror -O2
 GCC_RELEASE = gcc -Wall -Wextra -Werror -O3
 
-PREREQS = src/init/init.o src/markers/markers.o
+PREREQS = src/init/init.o src/markers/markers.o src/interface/interface.o
 
 help:
 	@echo "Args:"
@@ -28,6 +28,7 @@ run: build
 	$(GCC) -ggdb -c $< -o $*.o
 
 src/init/init.o : src/init/init.h src/markers/markers.h
+src/interface/interface.o : src/interface/interface.h src/init/init.h
 src/markers/markers.o : src/markers/markers.h
 
 
