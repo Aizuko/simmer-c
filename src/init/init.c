@@ -35,7 +35,7 @@ static bool parse_args(struct state *State, int argc, char **argv)
 
 bool init_state(struct state *State, int argc, char **argv)
 {
-    State->program_name = PROGRAM_NAME;
+    State->title = PROGRAM_NAME;
     State->version = PROGRAM_VERSION;
 
     * (char *)&State->columns = 80;
@@ -49,8 +49,16 @@ bool init_state(struct state *State, int argc, char **argv)
 
     State->markers = new_markers(78, State->end_time);
 
-    State->cursor_start = new_mark(300);
-    State->cursor_end = new_mark(900);
+    // TODO: Don't hardcode cursor times
+    struct mark *start = new_mark(300);
+    start->pos = nearest_pos_m(start->time, State->columns - 2, State->end_time);
+    start->label = '<';
+    State->cursor_start = start;
+
+    struct mark *end = new_mark(300);
+    end->pos = nearest_pos_m(end->time, State->columns - 2, State->end_time);
+    end->label = '>';
+    State->cursor_end = end;
 
     State->play_head = 0;
 
@@ -63,4 +71,11 @@ bool init_state(struct state *State, int argc, char **argv)
     if (parse_args(State, argc, argv))
         return false;
     return true;
+}
+
+
+void set_raw(struct termios *raw)
+{
+    cfmakeraw(raw);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, raw);
 }

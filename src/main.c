@@ -21,8 +21,20 @@ void print_help()
            PROGRAM_NAME, PROGRAM_VERSION);
 }
 
+void raw_terminal(struct termios *original) {
+    tcgetattr(STDIN_FILENO, original);
+
+    struct termios raw = *original;
+
+    cfmakeraw(&raw);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
 int main(int argc, char **argv)
 {
+    struct termios original;
+    raw_terminal(&original);
+
     struct state *State = malloc(sizeof(struct state));
 
     if (!init_state(State, argc, argv)) {
@@ -36,5 +48,5 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("SegFaultless: %lu\r\n", State->cursor_start->time);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &original);
 }

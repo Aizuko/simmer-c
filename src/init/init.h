@@ -6,6 +6,7 @@ extern const char *PROGRAM_VERSION;
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <termios.h>
 #include <unistd.h>
 #include <stdbool.h>
 
@@ -27,7 +28,7 @@ struct keybinds {
 };
 
 struct state {
-    const char *program_name;
+    const char *title;
     const char *version;
 
     const uint64_t columns;
@@ -49,7 +50,11 @@ struct state {
     const struct keybinds keys;
 };
 
+
 // Creates a new state. TODO: Read commandline arguments for marks
 bool init_state(struct state *State, int argc, char **argv);
+
+// Sets the terminal into raw mode
+void set_raw(struct termios *raw);
 
 #endif
