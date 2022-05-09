@@ -1,7 +1,5 @@
 #include "init.h"
 
-#include <stdio.h>
-
 // Returns true if a help flag was found or args could not be parsed
 static bool parse_args(struct state *State, int argc, char **argv)
 {
@@ -11,13 +9,9 @@ static bool parse_args(struct state *State, int argc, char **argv)
     while ((option = getopt(argc, argv, ":hm:e:s:")) != -1) {
         switch (option) {
         case 's':
-            printf("Entering s arg\r\n");
             time = (uint64_t) atoll(optarg);
-            printf("here1\r\n");
             State->cursor_start->time = time;
-            printf("here2 %ld\r\n", time);
             push_mark(State->markers, time);
-            printf("here3\r\n");
             break;
         case 'e':
             time = (uint64_t) atoll(optarg);

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
         struct mark *mark;
         for (uint64_t i = 0; i < State->markers->len; i++) {
             mark = State->markers->buffer[i];
-            printf("%c @ %lu\r\n", mark->label, mark->time);
+            printf("%c @ %lu in %lu\r\n", mark->label, mark->time, mark->pos);
         }
     }
 

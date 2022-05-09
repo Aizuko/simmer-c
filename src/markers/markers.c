@@ -1,37 +1,30 @@
 #include "markers.h"
 
-static void swap(struct mark *m1, struct mark *m2)
+static void swap(struct mark **buffer, uint64_t s1, uint64_t s2)
 {
-    struct mark *tmp = m1;
-    m1 = m2;
-    m2 = tmp;
+    struct mark *tmp = buffer[s1];
+    buffer[s1] = buffer[s2];
+    buffer[s2] = tmp;
 }
 
-static void qsort_marks(struct mark **buffer, uint64_t len)
+static void isort_marks(struct markers *marks)
 {
-    if (len < 2) return;
+    if (marks->len <= 1)
+        return;
 
-    struct mark *pivot = buffer[len - 1];
-    uint64_t low = 0;
-
-    for (uint64_t high = 0; high < len - 1; high++) {
-        if (buffer[high]->time < pivot->time) {
-            low += 1;
-            swap(buffer[low], buffer[high]);
+    for (uint64_t i = 1; i < marks->len; i++) {
+        for (int64_t j = (int64_t) i-1; j >= 0; j--) {
+            if (marks->buffer[j]->time > marks->buffer[j+1]->time)
+                swap(marks->buffer, j, j+1);
+            else
+                break;
         }
     }
-
-    qsort_marks(buffer, low);
-    qsort_marks(buffer + low, len - low - 1);
-
-    low += 1;
-
-    swap(buffer[low], pivot);
 }
 
 static void label_marks(struct markers *marks)
 {
-    qsort_marks(marks->buffer, marks->len);
+    isort_marks(marks);
 
     struct mark *mark;
     int64_t curr, prev = -1;
@@ -48,6 +41,7 @@ static void label_marks(struct markers *marks)
                 marks->buffer[j] = marks->buffer[j+1];
         } else {
             mark->label = label;
+            mark->pos = curr;
             label += 1;
             prev = curr;
         }
