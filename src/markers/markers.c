@@ -21,11 +21,12 @@ static void qsort_marks(struct mark **buffer, uint64_t len)
         }
     }
 
-    low += 1;
-    swap(buffer[low], pivot);
-
     qsort_marks(buffer, low);
-    qsort_marks(buffer + low, len - low);
+    qsort_marks(buffer + low, len - low - 1);
+
+    low += 1;
+
+    swap(buffer[low], pivot);
 }
 
 static void label_marks(struct markers *marks)
@@ -53,8 +54,6 @@ static void label_marks(struct markers *marks)
     }
 }
 
-
-
 /*─────────────────────────────────────────────────────────────────────────────╗
 │ Pμblic iητεrfαcε fδr mαrks                                                   |
 ╚─────────────────────────────────────────────────────────────────────────────*/
@@ -75,16 +74,16 @@ uint64_t nearest_pos_m(uint64_t weight, uint64_t positions, uint64_t max)
 /*─────────────────────────────────────────────────────────────────────────────╗
 │ Pμblic iητεrfαcε fδr mαrkεrs cδllεcτiδη                                      |
 ╚─────────────────────────────────────────────────────────────────────────────*/
-struct markers new_markers(uint64_t label_count, uint64_t maximum)
+struct markers *new_markers(uint64_t label_count, uint64_t maximum)
 {
-    struct mark **buffer = calloc(sizeof(struct mark *), label_count);
+    struct markers *marks = malloc(sizeof(struct markers));
 
-    return (struct markers) {
-        .buffer = buffer,
-        .len = 0,
-        .label_count = label_count,
-        .maximum = maximum,
-    };
+    marks->buffer = calloc(sizeof(struct mark *), label_count);
+    marks->len = 0;
+    marks->label_count = label_count;
+    marks->maximum = maximum;
+
+    return marks;
 }
 
 bool push_mark(struct markers *marks, uint64_t time)

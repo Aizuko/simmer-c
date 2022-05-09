@@ -1,5 +1,7 @@
-GCC = gcc -Wall -Wextra -Werror -O2 -std=c99 -pedantic
-GCC_RELEASE = gcc -Wall -Wextra -Werror -O3 -std=c99 -pedantic
+GCC = gcc -Wall -Wextra -Werror -O2
+GCC_RELEASE = gcc -Wall -Wextra -Werror -O3
+
+PREREQS = src/init/init.o src/markers/markers.o
 
 help:
 	@echo "Args:"
@@ -9,17 +11,21 @@ help:
 	@echo "    debug      Builds and runs gdb on binary in ./target/main_debug"
 	@echo "    keys       Builds and runs key detection binary in ./target/keys"
 
-build: src/main.c src/init/init.o src/markers/markers.o
+build: src/main.c $(PREREQS)
 	$(GCC) $^ -o target/main
 
-release: src/main.c
+debug: src/main.c $(PREREQS)
+	$(GCC) -ggdb $^ -o target/main
+
+release: src/main.c $(PREREQS)
 	$(GCC_RELEASE) $^ -o target/main
 
 run: build
-	./target/main
+	./target/main -m 400
+
 
 %.o: %.c
-	$(GCC) -c $< -o $*.o
+	$(GCC) -ggdb -c $< -o $*.o
 
 src/init/init.o : src/init/init.h src/markers/markers.h
 src/markers/markers.o : src/markers/markers.h

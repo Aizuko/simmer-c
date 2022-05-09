@@ -29,7 +29,7 @@ struct markers {
 };
 
 // Returns a new empty collection of marks
-struct markers new_markers(uint64_t label_count, uint64_t maximum);
+struct markers *new_markers(uint64_t label_count, uint64_t maximum);
 
 // Adds a new mark to the collection. The new mark will overwrite any old mark
 // with the same position

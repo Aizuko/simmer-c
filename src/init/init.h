@@ -1,8 +1,13 @@
 #ifndef INIT_H
 #define INIT_H
 
+extern const char *PROGRAM_NAME;
+extern const char *PROGRAM_VERSION;
+
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdbool.h>
 
 #include "../markers/markers.h"
 
@@ -34,7 +39,7 @@ struct state {
     const uint64_t start_time;
     const uint64_t end_time;
 
-    struct markers markers;
+    struct markers *markers;
 
     struct mark *cursor_start;
     struct mark *cursor_end;
@@ -45,6 +50,6 @@ struct state {
 };
 
 // Creates a new state. TODO: Read commandline arguments for marks
-struct state init_state();
+bool init_state(struct state *State, int argc, char **argv);
 
 #endif
