@@ -36,6 +36,10 @@ struct markers *new_markers(uint64_t label_count, uint64_t maximum);
 // Returns: True when the mark didn't overwrite any other mark
 bool push_mark(struct markers *marks, uint64_t time);
 
+// Returns true when the time given does not have the same position as any
+// other mark currently in the collection
+bool no_conflict(struct markers *marks, uint64_t time);
+
 // Removes a mark with the given time from the collection
 // Returns: True if the marks was removed, false if it wasn't found
 bool remove_mark(struct markers *marks, uint64_t time);

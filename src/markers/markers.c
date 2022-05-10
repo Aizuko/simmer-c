@@ -103,6 +103,17 @@ bool push_mark(struct markers *marks, uint64_t time)
     return true;
 }
 
+bool no_conflict(struct markers *marks, uint64_t time)
+{
+    uint64_t pos = nearest_pos(marks, time);
+
+    for (uint64_t i = 0; i < marks->len; i++) {
+        if (pos == nearest_pos(marks, marks->buffer[i]->time))
+            return false;
+    }
+    return true;
+}
+
 bool remove_mark(struct markers *marks, uint64_t time)
 {
     for (uint64_t i = 0; i < marks->len; i++) {
