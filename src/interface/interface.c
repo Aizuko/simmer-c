@@ -52,13 +52,15 @@ static void print_playtime(const struct state *State)
 static void print_timeline(const struct state *State)
 {
     char label[2] = "\0";
-    uint64_t rows = 4, cols = State->columns;
+    uint64_t rows = 5, cols = State->columns;
 
     char *buffer[rows][cols];
 
-    for (uint64_t i = 0; i < rows * cols; i++) {
-        buffer[0][i] = malloc(sizeof(char) * 3);
-        strcpy(buffer[0][i], " ");
+    for (uint64_t r = 0; r < rows; r++) {
+        for (uint64_t c = 0; c < cols; c++) {
+            buffer[r][c] = malloc(sizeof(char) * 3);
+            strcpy(buffer[r][c], " ");
+        }
     }
 
     // Cursors and their stems
@@ -93,7 +95,19 @@ static void print_timeline(const struct state *State)
         }
     }
 
-    // Flush one line at a time
+    // Selection bar at the bottom
+    strcpy(buffer[4][0], fill_block);
+    strcpy(buffer[4][cols-1], fill_block);
+
+    uint64_t start = State->cursor_start->pos;
+    uint64_t end   = State->cursor_end->pos;
+    uint64_t bar   = State->columns - 2;
+
+    for (uint64_t i = 0; i < start; i++)    strcpy(buffer[4][i+1], void_block);
+    for (uint64_t i = start; i <= end; i++) strcpy(buffer[4][i+1], fill_block);
+    for (uint64_t i = end+1; i < bar; i++)  strcpy(buffer[4][i+1], void_block);
+
+    // Flush entire buffer at once
     char *flush = calloc(sizeof(char), (rows * (cols + 2)) * 4 + 1);
 
     for (uint64_t i = 0; i < rows; i++) {
@@ -106,21 +120,6 @@ static void print_timeline(const struct state *State)
 
     printf("%s", flush);
     free(flush);
-}
-
-static void print_bar(const struct state *State)
-{
-    printf("%s", fill_block);
-
-    uint64_t start = State->cursor_start->pos;
-    uint64_t end   = State->cursor_end->pos;
-    uint64_t bar   = State->columns - 2;
-
-    for (uint64_t i = 0; i < start; i++)       printf("%s", void_block);
-    for (uint64_t i = 0; i < end - start; i++) printf("%s", fill_block);
-    for (uint64_t i = 0; i < bar - end; i++)   printf("%s", void_block);
-
-    printf("%s\r\n", fill_block);
 }
 
 static void print_times(const struct state *State)
@@ -155,6 +154,6 @@ void draw_interface(const struct state *State)
     print_title(State);
     print_playtime(State);
     print_timeline(State);
-    print_bar(State);
+    //print_bar(State);
     print_times(State);
 }
