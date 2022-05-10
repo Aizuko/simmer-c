@@ -51,38 +51,64 @@ static void print_playtime(const struct state *State)
 
 static void print_timeline(const struct state *State)
 {
-    uint64_t bar = State->columns - 2;
+    char label[2] = "\0";
+    uint64_t rows = 4, cols = State->columns;
+
+    char *buffer[rows][cols];
+
+    for (uint64_t i = 0; i < rows * cols; i++) {
+        buffer[0][i] = malloc(sizeof(char) * 3);
+        strcpy(buffer[0][i], " ");
+    }
+
+    // Cursors and their stems
+    for (uint64_t i = 0; i < cols - 2; i++) {
+        if (i == State->cursor_start->pos) {
+            label[0] = State->cursor_start->label;
+            strcpy(buffer[0][i+1], label);
+            strcpy(buffer[1][i+1], stem);
+            strcpy(buffer[2][i+1], stem);
+            strcpy(buffer[3][i+1], stem);
+        } else if (i == State->cursor_end->pos) {
+            label[0] = State->cursor_end->label;
+            strcpy(buffer[0][i+1], label);
+            strcpy(buffer[1][i+1], stem);
+            strcpy(buffer[2][i+1], stem);
+            strcpy(buffer[3][i+1], stem);
+        }
+    }
 
     // Labels for marks
-    printf("0");
+    strcpy(buffer[2][0], "0");
+    strcpy(buffer[3][0], stem);
+    strcpy(buffer[2][State->columns - 1], "$");
+    strcpy(buffer[3][State->columns - 1], stem);
 
     uint64_t index = 0;
     struct markers *marks = State->markers;
 
-    for (uint64_t i = 0; i < bar; i++) {
+    for (uint64_t i = 0; i < cols - 2; i++) {
         if (marks->len > index && marks->buffer[index]->pos == i) {
-            printf("%c", marks->buffer[index]->label);
+            label[0] = marks->buffer[index]->label;
+            strcpy(buffer[2][i+1], label);
+            strcpy(buffer[3][i+1], stem);
             index += 1;
-        } else {
-            printf(" ");
         }
     }
 
-    printf("$\r\n%s", stem);
+    char *flush = calloc(sizeof(char), cols * 4 + 1);
 
-    // Stems for marks
-    index = 0;
-
-    for (uint64_t i = 0; i < bar; i++) {
-        if (marks->len > index && marks->buffer[index]->pos == i) {
-            printf("%s", stem);
-            index += 1;
-        } else {
-            printf(" ");
+    for (uint64_t i = 0; i < rows; i++) {
+        for (uint64_t j = 0; j < cols; j++) {
+            strncat(flush, buffer[i][j], 4);
+            free(buffer[i][j]);
         }
-    }
+        printf("%s\r\n", flush);
 
-    printf("%s\r\n", stem);
+        for (uint64_t j = 0; j < cols * 2; j++)
+            flush[j] = '\0';
+    }
+    free(flush);
 }
 
 static void print_bar(const struct state *State)
