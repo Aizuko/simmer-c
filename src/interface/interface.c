@@ -62,6 +62,14 @@ static void print_timeline(const struct state *State)
     }
 
     // Cursors and their stems
+    strcpy(buffer[2][0], "0");
+    strcpy(buffer[3][0], stem);
+    strcpy(buffer[2][State->columns - 1], "$");
+    strcpy(buffer[3][State->columns - 1], stem);
+
+    uint64_t index = 0;
+    struct markers *marks = State->markers;
+
     for (uint64_t i = 0; i < cols - 2; i++) {
         if (i == State->cursor_start->pos) {
             label[0] = State->cursor_start->label;
@@ -76,18 +84,7 @@ static void print_timeline(const struct state *State)
             strcpy(buffer[2][i+1], stem);
             strcpy(buffer[3][i+1], stem);
         }
-    }
 
-    // Labels for marks
-    strcpy(buffer[2][0], "0");
-    strcpy(buffer[3][0], stem);
-    strcpy(buffer[2][State->columns - 1], "$");
-    strcpy(buffer[3][State->columns - 1], stem);
-
-    uint64_t index = 0;
-    struct markers *marks = State->markers;
-
-    for (uint64_t i = 0; i < cols - 2; i++) {
         if (marks->len > index && marks->buffer[index]->pos == i) {
             label[0] = marks->buffer[index]->label;
             strcpy(buffer[2][i+1], label);
@@ -96,18 +93,18 @@ static void print_timeline(const struct state *State)
         }
     }
 
-    char *flush = calloc(sizeof(char), cols * 4 + 1);
+    // Flush one line at a time
+    char *flush = calloc(sizeof(char), (rows * (cols + 2)) * 4 + 1);
 
     for (uint64_t i = 0; i < rows; i++) {
         for (uint64_t j = 0; j < cols; j++) {
             strncat(flush, buffer[i][j], 4);
             free(buffer[i][j]);
         }
-        printf("%s\r\n", flush);
-
-        for (uint64_t j = 0; j < cols * 2; j++)
-            flush[j] = '\0';
+        strncat(flush, "\r\n", 3);
     }
+
+    printf("%s", flush);
     free(flush);
 }
 
