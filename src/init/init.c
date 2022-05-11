@@ -66,6 +66,13 @@ bool init_state(struct state *State, int argc, char **argv)
         .exit = 'q',
         .jump_start = 'j',
         .jump_end = 'e',
+
+        .start_left = 'q',
+        .start_right = 'w',
+        .end_left = 'e',
+        .end_right = 'r',
+
+        .trim = 'R',
     };
 
     if (parse_args(State, argc, argv))

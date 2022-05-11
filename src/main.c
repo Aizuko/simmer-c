@@ -43,11 +43,6 @@ int main(int argc, char **argv)
     } else {
         raw_terminal(&original);
         draw_interface(State);
-        //struct mark *mark;
-        //for (uint64_t i = 0; i < State->markers->len; i++) {
-        //    mark = State->markers->buffer[i];
-        //    printf("%c @ %lu in %lu\r\n", mark->label, mark->time, mark->pos);
-        //}
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &original);
     }
 }

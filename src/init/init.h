@@ -25,6 +25,13 @@ struct keybinds {
     char exit;
     char jump_start;
     char jump_end;
+
+    char start_left;
+    char start_right;
+    char end_left;
+    char end_right;
+
+    char trim;
 };
 
 struct state {
