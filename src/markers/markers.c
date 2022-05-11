@@ -129,6 +129,15 @@ bool remove_mark(struct markers *marks, uint64_t time)
     return false;
 }
 
+uint64_t find_mark(struct markers *marks, char label)
+{
+    for (uint64_t i = 0; i < marks->len; i++) {
+        if (label == marks->buffer[i]->label)
+            return marks->buffer[i]->time;
+    }
+    return 0;
+}
+
 void drain_markers(struct markers *marks)
 {
     for (uint64_t i = 0; i < marks->len; i++)

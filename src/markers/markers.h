@@ -44,6 +44,10 @@ bool no_conflict(struct markers *marks, uint64_t time);
 // Returns: True if the marks was removed, false if it wasn't found
 bool remove_mark(struct markers *marks, uint64_t time);
 
+// Returns the time of the mark with the given label. Returns zero if the label
+// isn't found
+uint64_t find_mark(struct markers *marks, char label);
+
 // Removes all the marks in the collection
 void drain_markers(struct markers *marks);
 

@@ -23,9 +23,14 @@ enum mode {
 
 struct keybinds {
     char exit;
+
+    // Markers
     char jump_start;
     char jump_end;
+    char set_mark_start;
+    char set_mark_end;
 
+    // Nudging the cursors
     char start_left;
     char start_right;
     char end_left;

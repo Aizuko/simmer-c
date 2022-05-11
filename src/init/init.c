@@ -66,8 +66,11 @@ bool init_state(struct state *State, int argc, char **argv)
 
     *(struct keybinds *)&State->keys = (struct keybinds) {
         .exit = 'Q',
+
         .jump_start = 'j',
-        .jump_end = 'e',
+        .jump_end = 'k',
+        .set_mark_start = '1',
+        .set_mark_end = '2',
 
         .start_left = 'q',
         .start_right = 'w',

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 
 #include "init/init.h"
 #include "interface/interface.h"
@@ -60,6 +61,7 @@ void event_loop(struct state *State)
     draw_interface(State);
 
     char key;
+    uint64_t time;
     struct keybinds k = State->keys;
 
     while (read(STDIN_FILENO, &key, 1) != -1) {
@@ -76,11 +78,41 @@ void event_loop(struct state *State)
                 move_cursor(false, State, -1 * State->move_amount);
             } else if (key == k.end_right) {
                 move_cursor(false, State, State->move_amount);
+            } else if (key == k.set_mark_start) {
+                push_mark(State->markers, State->cursor_start->time);
+            } else if (key == k.set_mark_end) {
+                push_mark(State->markers, State->cursor_end->time);
+            } else if (key == k.jump_start) {
+                State->mode = JumpStart;
+            } else if (key == k.jump_end) {
+                State->mode = JumpEnd;
             }
             break;
         case JumpStart:
+            time = find_mark(State->markers, key);
+
+            if (islower(key) && key - 96 <= (char) State->markers->len
+                && time <= State->cursor_end->time)
+                State->cursor_start->time = find_mark(State->markers, key);
+            else if (key == '0')
+                State->cursor_start->time = State->start_time;
+
+            State->cursor_start->pos =
+                nearest_pos(State->markers, State->cursor_start->time);
+            State->mode = Normal;
             break;
         case JumpEnd:
+            time = find_mark(State->markers, key);
+
+            if (islower(key) && key - 96 <= (char) State->markers->len
+                && State->cursor_start->time <= time)
+                State->cursor_end->time = find_mark(State->markers, key);
+            else if (key == '$')
+                State->cursor_end->time = State->end_time;
+
+            State->cursor_end->pos =
+                nearest_pos(State->markers, State->cursor_end->time);
+            State->mode = Normal;
             break;
         case Exiting:
             return;
