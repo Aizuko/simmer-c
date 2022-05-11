@@ -55,6 +55,7 @@ struct state {
     uint64_t play_head;
 
     const struct keybinds keys;
+    int64_t move_amount;
 };
 
 

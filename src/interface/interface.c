@@ -149,7 +149,7 @@ static void print_times(const struct state *State)
     char *cursor_end   = format_milli(State->cursor_end->time);
     char *end_time     = format_milli(State->end_time);
 
-    printf("%12s              %12s -> %12s              %12s\r",
+    printf("%12s              %12s -> %12s              %12s\r\n",
         start_time, cursor_start, cursor_end, end_time);
 
     free(start_time);

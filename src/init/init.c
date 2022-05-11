@@ -62,8 +62,10 @@ bool init_state(struct state *State, int argc, char **argv)
 
     State->play_head = 0;
 
+    State->move_amount = 12;
+
     *(struct keybinds *)&State->keys = (struct keybinds) {
-        .exit = 'q',
+        .exit = 'Q',
         .jump_start = 'j',
         .jump_end = 'e',
 
