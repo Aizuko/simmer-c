@@ -3,9 +3,10 @@
 
 #include "interface.h"
 
-static const char *fill_block = "█";
-static const char *void_block = "░";
-static const char *stem = "│";
+static const char *FILL_BLOCK = "█";
+static const char *VOID_BLOCK = "░";
+static const char *STEM = "│";
+static const char DEPTH = 3;
 
 static char *format_milli(uint64_t milli)
 {
@@ -18,6 +19,23 @@ static char *format_milli(uint64_t milli)
     char *fmt = calloc(sizeof(char), 14);
     sprintf(fmt, "%02d:%02d:%02d.%03d", hour, mins, secs, (uint8_t) milli);
     return fmt;
+}
+
+static void print_buffer(uint64_t rows, uint64_t cols, char *buffer[rows][cols])
+{
+    // Flush entire buffer at once
+    char *flush = calloc(sizeof(char), rows * cols * DEPTH + 1);
+
+    for (uint64_t r = 0; r < rows; r++) {
+        for (uint64_t c = 0; c < cols; c++) {
+            strncat(flush, buffer[r][c], DEPTH);
+            free(buffer[r][c]);
+        }
+        strncat(flush, "\r\n", 3);
+    }
+
+    printf("%s", flush);
+    free(flush);
 }
 
 static void print_title(const struct state *State)
@@ -52,22 +70,23 @@ static void print_playtime(const struct state *State)
 static void print_timeline(const struct state *State)
 {
     char label[2] = "\0";
-    uint64_t rows = 5, cols = State->columns;
+    uint64_t rows = 4;
+    uint64_t cols = State->columns;
 
     char *buffer[rows][cols];
 
     for (uint64_t r = 0; r < rows; r++) {
         for (uint64_t c = 0; c < cols; c++) {
-            buffer[r][c] = malloc(sizeof(char) * 3);
+            buffer[r][c] = malloc(sizeof(char) * DEPTH);
             strcpy(buffer[r][c], " ");
         }
     }
 
-    // Cursors and their stems
+    // Cursors and their STEMs
     strcpy(buffer[2][0], "0");
-    strcpy(buffer[3][0], stem);
+    strcpy(buffer[3][0], STEM);
     strcpy(buffer[2][State->columns - 1], "$");
-    strcpy(buffer[3][State->columns - 1], stem);
+    strcpy(buffer[3][State->columns - 1], STEM);
 
     uint64_t index = 0;
     struct markers *marks = State->markers;
@@ -76,50 +95,51 @@ static void print_timeline(const struct state *State)
         if (i == State->cursor_start->pos) {
             label[0] = State->cursor_start->label;
             strcpy(buffer[0][i+1], label);
-            strcpy(buffer[1][i+1], stem);
-            strcpy(buffer[2][i+1], stem);
-            strcpy(buffer[3][i+1], stem);
+            strcpy(buffer[1][i+1], STEM);
+            strcpy(buffer[2][i+1], STEM);
+            strcpy(buffer[3][i+1], STEM);
         } else if (i == State->cursor_end->pos) {
             label[0] = State->cursor_end->label;
             strcpy(buffer[0][i+1], label);
-            strcpy(buffer[1][i+1], stem);
-            strcpy(buffer[2][i+1], stem);
-            strcpy(buffer[3][i+1], stem);
+            strcpy(buffer[1][i+1], STEM);
+            strcpy(buffer[2][i+1], STEM);
+            strcpy(buffer[3][i+1], STEM);
         }
 
         if (marks->len > index && marks->buffer[index]->pos == i) {
             label[0] = marks->buffer[index]->label;
             strcpy(buffer[2][i+1], label);
-            strcpy(buffer[3][i+1], stem);
+            strcpy(buffer[3][i+1], STEM);
             index += 1;
         }
     }
 
+    print_buffer(rows, cols, buffer);
+}
+
+static void print_bar(const struct state *State)
+{
+    uint64_t cols = State->columns;
+    char *buffer[cols];
+
+    for (uint64_t c = 0; c < cols; c++) {
+        buffer[c] = malloc(sizeof(char) * DEPTH);
+        strcpy(buffer[c], " ");
+    }
+
     // Selection bar at the bottom
-    strcpy(buffer[4][0], fill_block);
-    strcpy(buffer[4][cols-1], fill_block);
+    strcpy(buffer[0], FILL_BLOCK);
+    strcpy(buffer[cols-1], FILL_BLOCK);
 
     uint64_t start = State->cursor_start->pos;
     uint64_t end   = State->cursor_end->pos;
     uint64_t bar   = State->columns - 2;
 
-    for (uint64_t i = 0; i < start; i++)    strcpy(buffer[4][i+1], void_block);
-    for (uint64_t i = start; i <= end; i++) strcpy(buffer[4][i+1], fill_block);
-    for (uint64_t i = end+1; i < bar; i++)  strcpy(buffer[4][i+1], void_block);
+    for (uint64_t i = 0; i < start; i++)    strcpy(buffer[i+1], VOID_BLOCK);
+    for (uint64_t i = start; i <= end; i++) strcpy(buffer[i+1], FILL_BLOCK);
+    for (uint64_t i = end+1; i < bar; i++)  strcpy(buffer[i+1], VOID_BLOCK);
 
-    // Flush entire buffer at once
-    char *flush = calloc(sizeof(char), (rows * (cols + 2)) * 4 + 1);
-
-    for (uint64_t i = 0; i < rows; i++) {
-        for (uint64_t j = 0; j < cols; j++) {
-            strncat(flush, buffer[i][j], 4);
-            free(buffer[i][j]);
-        }
-        strncat(flush, "\r\n", 3);
-    }
-
-    printf("%s", flush);
-    free(flush);
+    print_buffer(1, cols, &buffer);
 }
 
 static void print_times(const struct state *State)
@@ -154,6 +174,6 @@ void draw_interface(const struct state *State)
     print_title(State);
     print_playtime(State);
     print_timeline(State);
-    //print_bar(State);
+    print_bar(State);
     print_times(State);
 }
